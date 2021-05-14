@@ -1,16 +1,12 @@
 import 'dart:convert';
-import 'dart:io' as File;
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'HomePage.dart';
-import 'DoorListings.dart';
+import 'pages/door_listings.dart';
 
-void main() {
-  runApp(MyApp());
-}
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   @override
@@ -77,7 +73,7 @@ class _LoginDemoState extends State<LoginDemo> {
                     hintText: 'Enter secure password'),
               ),
             ),
-            FlatButton(
+            TextButton(
               onPressed: () {
                 //TODO FORGOT PASSWORD SCREEN GOES HERE
               },
@@ -91,7 +87,7 @@ class _LoginDemoState extends State<LoginDemo> {
               width: 250,
               decoration: BoxDecoration(
                   color: Colors.blue, borderRadius: BorderRadius.circular(20)),
-              child: FlatButton(
+              child: TextButton(
                 onPressed: () {
                   // ignore: unrelated_type_equality_checks
                   var result = authenticate(email.text, password.text);
@@ -124,7 +120,7 @@ class _LoginDemoState extends State<LoginDemo> {
             SizedBox(
               height: 130,
             ),
-            Text('New User? Create Account')
+            //Text('New User? Create Account')
           ],
         ),
       ),
