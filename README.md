@@ -1,6 +1,6 @@
-# logindemo
+# Gloocel Mobile app
 
-A new Flutter application.
+Glocel Flutter application.
 
 ## Getting Started
 
