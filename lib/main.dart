@@ -2,9 +2,12 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:logindemo/api/api_service.dart';
+import 'package:logindemo/components/progress_hud.dart';
+import 'package:logindemo/pages/door_listings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'pages/door_listings.dart';
+import 'model/login_model.dart';
 
 void main() => runApp(MyApp());
 
@@ -13,115 +16,148 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LoginDemo(),
+      home: LoginPage(),
     );
   }
 }
 
-class LoginDemo extends StatefulWidget {
+class LoginPage extends StatefulWidget {
   @override
-  _LoginDemoState createState() => _LoginDemoState();
+  _LoginPageState createState() => _LoginPageState();
 }
 
-class _LoginDemoState extends State<LoginDemo> {
-  final email = TextEditingController();
-  final password = TextEditingController();
-  final invalid = TextEditingController();
+class _LoginPageState extends State<LoginPage> {
+  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  LoginRequestModel requestModel;
+  bool isApiCallProcess = false;
+
+  @override
+  void initState() {
+    super.initState();
+    requestModel = new LoginRequestModel();
+  }
+
   @override
   Widget build(BuildContext context) {
+    return ProgressHUD(
+        child: _uiSetup(context), isAsyncCall: isApiCallProcess, opacity: 0.3);
+  }
+
+  Widget _uiSetup(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text("Login Page"),
       ),
       body: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(top: 60.0),
-              child: Center(
-                child: Container(
-                    width: 200,
-                    height: 150,
-                    /*decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(50.0)),*/
-                    child: Image.asset('asset/images/flutter-logo.png')),
-              ),
-            ),
-            Padding(
-              //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
-              padding: EdgeInsets.symmetric(horizontal: 15),
-              child: TextField(
-                controller: email,
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Username',
-                    hintText: 'Username'),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                  left: 15.0, right: 15.0, top: 15, bottom: 0),
-              //padding: EdgeInsets.symmetric(horizontal: 15),
-              child: TextField(
-                controller: password,
-                obscureText: true,
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Password',
-                    hintText: 'Enter secure password'),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                //TODO FORGOT PASSWORD SCREEN GOES HERE
-              },
-              child: Text(
-                'Forgot Password',
-                style: TextStyle(color: Colors.blue, fontSize: 15),
-              ),
-            ),
-            Container(
-              height: 50,
-              width: 250,
-              decoration: BoxDecoration(
-                  color: Colors.blue, borderRadius: BorderRadius.circular(20)),
-              child: TextButton(
-                onPressed: () {
-                  // ignore: unrelated_type_equality_checks
-                  var result = authenticate(email.text, password.text);
-
-                  result.then((value) => {
-                        if (value != null)
-                          {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => DoorListings(text: value)))
-                          }
-                        else
-                          {print("bad creds")}
-                      });
-                },
-                child: Text(
-                  'Login',
-                  style: TextStyle(color: Colors.white, fontSize: 25),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(top: 60.0),
+                child: Center(
+                  child: Container(
+                      width: 200,
+                      height: 150,
+                      /*decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(50.0)),*/
+                      child: Image.asset('asset/images/flutter-logo.png')),
                 ),
               ),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Text(
-              'Invalid username or password',
-              style: (TextStyle(color: Colors.white, fontSize: 15)),
-            ),
-            SizedBox(
-              height: 130,
-            ),
-            //Text('New User? Create Account')
-          ],
+              Padding(
+                //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
+                padding: EdgeInsets.symmetric(horizontal: 15),
+                child: TextFormField(
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Username',
+                      hintText: 'Username'),
+                  keyboardType: TextInputType.emailAddress,
+                  onSaved: (input) => requestModel.username = input,
+                  validator: (input) => !input.contains("@")
+                      ? "Invalid email address provided"
+                      : null,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(
+                    left: 15.0, right: 15.0, top: 15, bottom: 0),
+                //padding: EdgeInsets.symmetric(horizontal: 15),
+                child: TextFormField(
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Password',
+                      hintText: 'Enter secure password'),
+                  keyboardType: TextInputType.text,
+                  obscureText: true,
+                  onSaved: (input) => requestModel.password = input,
+                  validator: (input) => input.length < 3
+                      ? "Password should be more than 3 characters"
+                      : null,
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  //TODO FORGOT PASSWORD SCREEN GOES HERE
+                },
+                child: Text(
+                  'Forgot Password',
+                  style: TextStyle(color: Colors.blue, fontSize: 15),
+                ),
+              ),
+              Container(
+                height: 50,
+                width: 250,
+                decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.circular(20)),
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (validateAndSave()) {
+                      setState(() {
+                        isApiCallProcess = true;
+                      });
+
+                      APIService apiService = new APIService();
+                      apiService.login(requestModel).then((value) {
+                        setState(() {
+                          isApiCallProcess = false;
+                        });
+
+                        if (value.token.isNotEmpty) {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) =>
+                                      DoorListings(text: value.token)));
+                        } else {
+                          final snackBar = SnackBar(content: Text(value.error));
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                        }
+                      });
+                    }
+                  },
+                  child: Text(
+                    'Login',
+                    style: TextStyle(color: Colors.white, fontSize: 25),
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Text(
+                'Invalid username or password',
+                style: (TextStyle(color: Colors.white, fontSize: 15)),
+              ),
+              SizedBox(
+                height: 130,
+              ),
+              //Text('New User? Create Account')
+            ],
+          ),
         ),
       ),
     );
@@ -134,12 +170,21 @@ class _LoginDemoState extends State<LoginDemo> {
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
       final String token = jsonData["token"];
-      print(token);
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString("token", token);
       return token;
     } else {
       return null;
     }
+  }
+
+  bool validateAndSave() {
+    final form = _formKey.currentState;
+
+    if (form.validate()) {
+      form.save();
+      return true;
+    }
+    return false;
   }
 }

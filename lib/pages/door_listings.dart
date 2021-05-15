@@ -80,7 +80,7 @@ class _DataFromAPIState extends State<DoorListings> {
                     token = prefs.getString('token');
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => LoginDemo()),
+                      MaterialPageRoute(builder: (context) => LoginPage()),
                     );
                   });
                 } else {
