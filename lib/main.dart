@@ -1,16 +1,12 @@
 import 'dart:convert';
-import 'dart:io' as File;
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'HomePage.dart';
-import 'test.dart';
+import 'pages/door_listings.dart';
 
-void main() {
-  runApp(MyApp());
-}
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   @override
@@ -62,7 +58,6 @@ class _LoginDemoState extends State<LoginDemo> {
                     border: OutlineInputBorder(),
                     labelText: 'Username',
                     hintText: 'Username'),
-
               ),
             ),
             Padding(
@@ -78,8 +73,8 @@ class _LoginDemoState extends State<LoginDemo> {
                     hintText: 'Enter secure password'),
               ),
             ),
-            FlatButton(
-              onPressed: (){
+            TextButton(
+              onPressed: () {
                 //TODO FORGOT PASSWORD SCREEN GOES HERE
               },
               child: Text(
@@ -92,20 +87,22 @@ class _LoginDemoState extends State<LoginDemo> {
               width: 250,
               decoration: BoxDecoration(
                   color: Colors.blue, borderRadius: BorderRadius.circular(20)),
-              child: FlatButton(
+              child: TextButton(
                 onPressed: () {
                   // ignore: unrelated_type_equality_checks
                   var result = authenticate(email.text, password.text);
 
-                  result.then((value) =>
-                  { if (value != null) {
-
-                    Navigator.push(context,MaterialPageRoute(builder: (_) => test(text:value)))
-                  } else {
-                    print("bad creds")
-                  }
-                  }
-                  );
+                  result.then((value) => {
+                        if (value != null)
+                          {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => DoorListings(text: value)))
+                          }
+                        else
+                          {print("bad creds")}
+                      });
                 },
                 child: Text(
                   'Login',
@@ -114,42 +111,35 @@ class _LoginDemoState extends State<LoginDemo> {
               ),
             ),
             SizedBox(
-                height: 10,
+              height: 10,
             ),
-            Text('Invalid username or password',
-                style: (
-                    TextStyle(color: Colors.white, fontSize: 15)
-                ),
-
-    ),
+            Text(
+              'Invalid username or password',
+              style: (TextStyle(color: Colors.white, fontSize: 15)),
+            ),
             SizedBox(
               height: 130,
             ),
-            Text('New User? Create Account')
-
+            //Text('New User? Create Account')
           ],
         ),
       ),
     );
   }
 
-  Future<String> authenticate(String username, String password)  async {
-
+  Future<String> authenticate(String username, String password) async {
     var response = await http.post(
         Uri.http("10.0.2.2:8000", "/api/account/login"),
-        body:{
-      "username": username,
-      "password": password
-    });
-    if(response.statusCode == 200){
+        body: {"username": username, "password": password});
+    if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
       final String token = jsonData["token"];
       print(token);
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString("token", token);
       return token;
-    } else{
-        return null;
+    } else {
+      return null;
     }
   }
 }
