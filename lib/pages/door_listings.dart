@@ -65,7 +65,7 @@ class _DataFromAPIState extends State<DoorListings> {
 
     return Scaffold(
         appBar: AppBar(
-          title: displayToken(),
+          title: Text("Open Door"),
           actions: <Widget>[
             PopupMenuButton<String>(
               onSelected: (value) async {
@@ -122,7 +122,9 @@ class _DataFromAPIState extends State<DoorListings> {
                                 child: FlatButton(
                                   color: Colors.green,
                                   child: Text('Open Door'),
-                                  onPressed: () => {},
+                                  onPressed: () => {
+                                    openDoor(snapshot.data[i].freeChampionIds.toString())
+                                  },
                                 ),
                               )
                             ],
@@ -133,6 +135,14 @@ class _DataFromAPIState extends State<DoorListings> {
             ),
           ),
         ));
+  }
+  Future openDoor(String doorname) async {
+    var response = await http.post(
+        Uri.http("10.0.2.2:8000", "/api/door/open/"+ doorname),
+        headers: {
+          "Authorization": "token " + token
+        }
+    );
   }
 }
 
