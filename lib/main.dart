@@ -93,8 +93,8 @@ class _LoginPageState extends State<LoginPage> {
                   keyboardType: TextInputType.text,
                   obscureText: true,
                   onSaved: (input) => requestModel.password = input,
-                  validator: (input) => input.length < 3
-                      ? "Password should be more than 3 characters"
+                  validator: (input) => input.length < 6
+                      ? "Password should be more than 6 characters"
                       : null,
                 ),
               ),
