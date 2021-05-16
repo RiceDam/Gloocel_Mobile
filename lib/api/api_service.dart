@@ -10,7 +10,6 @@ class APIService {
     try {
       var response = await http.post(url, body: requestModel.toJson());
 
-      print(response.statusCode);
       if (response.statusCode == 200 || response.statusCode == 400) {
         return LoginResponseModel.fromJson(json.decode(response.body));
       }

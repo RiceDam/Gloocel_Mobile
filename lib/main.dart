@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:logindemo/api/api_service.dart';
 import 'package:logindemo/components/progress_hud.dart';
 import 'package:logindemo/pages/door_listings.dart';
+import 'package:logindemo/utils/shared_preferences.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'model/login_model.dart';
@@ -127,6 +128,8 @@ class _LoginPageState extends State<LoginPage> {
                         });
 
                         if (value.token.isNotEmpty) {
+                          SharedPreferencesUtils.updateSharedPreferences(
+                              "token", value.token);
                           Navigator.push(
                               context,
                               MaterialPageRoute(
