@@ -47,7 +47,6 @@ class _DataFromAPIState extends State<DoorListings> {
     for (int i = 0; i < jsonData.length; i++) {
       Champions champion =
           Champions(jsonData[i]['id'], jsonData[i]["door_name"].toString());
-      print(jsonData[i]);
       doors.add(champion);
     }
 
@@ -58,7 +57,6 @@ class _DataFromAPIState extends State<DoorListings> {
   Widget build(BuildContext context) {
     displayToken() {
       if (token != null) {
-        print("Localstorage: " + token);
         return Text("Token: " + token);
       }
     }
@@ -80,7 +78,7 @@ class _DataFromAPIState extends State<DoorListings> {
                     token = prefs.getString('token');
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => LoginDemo()),
+                      MaterialPageRoute(builder: (context) => LoginPage()),
                     );
                   });
                 } else {
@@ -123,7 +121,8 @@ class _DataFromAPIState extends State<DoorListings> {
                                   color: Colors.green,
                                   child: Text('Open Door'),
                                   onPressed: () => {
-                                    openDoor(snapshot.data[i].freeChampionIds.toString())
+                                    openDoor(snapshot.data[i].freeChampionIds
+                                        .toString())
                                   },
                                 ),
                               )
@@ -136,13 +135,11 @@ class _DataFromAPIState extends State<DoorListings> {
           ),
         ));
   }
+
   Future openDoor(String doorname) async {
     var response = await http.post(
-        Uri.http("10.0.2.2:8000", "/api/door/open/"+ doorname),
-        headers: {
-          "Authorization": "token " + token
-        }
-    );
+        Uri.http("10.0.2.2:8000", "/api/door/open/" + doorname),
+        headers: {"Authorization": "token " + token});
   }
 }
 
