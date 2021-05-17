@@ -5,4 +5,8 @@ class SharedPreferencesUtils {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString(key, value);
   }
+  static Future<String> getSharedPreferences(key) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.get(key);
+  }
 }
