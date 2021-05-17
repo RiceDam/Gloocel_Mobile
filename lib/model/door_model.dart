@@ -1,6 +1,6 @@
 class DoorModel {
   final int id;
-  final String DoorIds;
+  final String doorIds;
 
-  DoorModel(this.id, this.DoorIds);
+  DoorModel(this.id, this.doorIds);
 }

@@ -1,8 +1,4 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
-import '../model/door_model.dart';
 import '../main.dart';
 import '../api/api_service.dart';
 import 'package:logindemo/utils/shared_preferences.dart';
@@ -33,9 +29,9 @@ class _DataFromAPIState extends State<DoorListings> {
     super.initState();
     getToken();
   }
+
   @override
   Widget build(BuildContext context) {
-
     APIService apiService = new APIService();
 
     return Scaffold(
@@ -44,7 +40,7 @@ class _DataFromAPIState extends State<DoorListings> {
           actions: <Widget>[
             PopupMenuButton<String>(
               onSelected: (value) async {
-                apiService.logout(token).then((statusCode){
+                apiService.logout(token).then((statusCode) {
                   if (statusCode == 200) {
                     SharedPreferencesUtils.updateSharedPreferences("token", "");
                     setState(() {
@@ -53,7 +49,7 @@ class _DataFromAPIState extends State<DoorListings> {
                         MaterialPageRoute(builder: (context) => LoginPage()),
                       );
                     });
-                  }else {
+                  } else {
                     print("session expires");
                   }
                 });
@@ -85,8 +81,7 @@ class _DataFromAPIState extends State<DoorListings> {
                       itemCount: snapshot.data.length,
                       itemBuilder: (context, i) {
                         return ListTile(
-                          title:
-                              Text(getDoorId(snapshot, i)),
+                          title: Text(getDoorId(snapshot, i)),
                           trailing: Column(
                             children: <Widget>[
                               Expanded(
@@ -94,7 +89,8 @@ class _DataFromAPIState extends State<DoorListings> {
                                   color: Colors.green,
                                   child: Text('Open Door'),
                                   onPressed: () => {
-                                    apiService.openDoor(getDoorId(snapshot, i),token)
+                                    apiService.openDoor(
+                                        getDoorId(snapshot, i), token)
                                   },
                                 ),
                               )
@@ -107,18 +103,16 @@ class _DataFromAPIState extends State<DoorListings> {
           ),
         ));
   }
-  String getDoorId(snapshot,int i) {
+
+  String getDoorId(snapshot, int i) {
     return snapshot.data[i].id.toString();
   }
+
   getToken() {
-      SharedPreferencesUtils.getSharedPreferences("token").then((token){
-        setState(() {
-          this.token =  token;
-        });
+    SharedPreferencesUtils.getSharedPreferences("token").then((token) {
+      setState(() {
+        this.token = token;
       });
-
+    });
   }
-
 }
-
-
