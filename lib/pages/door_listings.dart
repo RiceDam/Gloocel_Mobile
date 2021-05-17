@@ -2,8 +2,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-
+import '../model/door_model.dart';
 import '../main.dart';
+import '../api/api_service.dart';
+import 'package:logindemo/utils/shared_preferences.dart';
 
 class DoorListings extends StatefulWidget {
   final String text;
@@ -25,41 +27,16 @@ class MyApp extends StatelessWidget {
 
 class _DataFromAPIState extends State<DoorListings> {
   String token = "";
-
+  String ip = "10.0.2.2:8000";
+  @override
   void initState() {
+    super.initState();
     getToken();
   }
-
-  getToken() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      token = prefs.getString('token');
-    });
-  }
-
-  Future getDoors() async {
-    var response = await http.get(Uri.http("10.0.2.2:8000", "/api/door"),
-        headers: {"Authorization": "token " + token});
-
-    var jsonData = await jsonDecode(response.body);
-
-    List<Champions> doors = [];
-    for (int i = 0; i < jsonData.length; i++) {
-      Champions champion =
-          Champions(jsonData[i]['id'], jsonData[i]["door_name"].toString());
-      doors.add(champion);
-    }
-
-    return doors;
-  }
-
   @override
   Widget build(BuildContext context) {
-    displayToken() {
-      if (token != null) {
-        return Text("Token: " + token);
-      }
-    }
+
+    APIService apiService = new APIService();
 
     return Scaffold(
         appBar: AppBar(
@@ -67,23 +44,19 @@ class _DataFromAPIState extends State<DoorListings> {
           actions: <Widget>[
             PopupMenuButton<String>(
               onSelected: (value) async {
-                var response = await http.get(
-                    Uri.http("10.0.2.2:8000", "/api/account/logout"),
-                    headers: {"authorization": "Token " + token});
-                if (response.statusCode == 200) {
-                  SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
-                  setState(() {
-                    prefs.setString("token", "");
-                    token = prefs.getString('token');
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => LoginPage()),
-                    );
-                  });
-                } else {
-                  print("session expires");
-                }
+                apiService.logout(token).then((statusCode){
+                  if (statusCode == 200) {
+                    SharedPreferencesUtils.updateSharedPreferences("token", "");
+                    setState(() {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginPage()),
+                      );
+                    });
+                  }else {
+                    print("session expires");
+                  }
+                });
               },
               itemBuilder: (BuildContext context) {
                 return {'Logout'}.map((String choice) {
@@ -99,7 +72,7 @@ class _DataFromAPIState extends State<DoorListings> {
         body: Container(
           child: Card(
             child: FutureBuilder(
-              future: getDoors(),
+              future: apiService.getDoors(token),
               builder: (context, snapshot) {
                 if (snapshot.data == null) {
                   return Container(
@@ -113,7 +86,7 @@ class _DataFromAPIState extends State<DoorListings> {
                       itemBuilder: (context, i) {
                         return ListTile(
                           title:
-                              Text(snapshot.data[i].freeChampionIds.toString()),
+                              Text(getDoorId(snapshot, i)),
                           trailing: Column(
                             children: <Widget>[
                               Expanded(
@@ -121,8 +94,7 @@ class _DataFromAPIState extends State<DoorListings> {
                                   color: Colors.green,
                                   child: Text('Open Door'),
                                   onPressed: () => {
-                                    openDoor(snapshot.data[i].freeChampionIds
-                                        .toString())
+                                    apiService.openDoor(getDoorId(snapshot, i),token)
                                   },
                                 ),
                               )
@@ -135,17 +107,18 @@ class _DataFromAPIState extends State<DoorListings> {
           ),
         ));
   }
-
-  Future openDoor(String doorname) async {
-    var response = await http.post(
-        Uri.http("10.0.2.2:8000", "/api/door/open/" + doorname),
-        headers: {"Authorization": "token " + token});
+  String getDoorId(snapshot,int i) {
+    return snapshot.data[i].id.toString();
   }
+  getToken() {
+      SharedPreferencesUtils.getSharedPreferences("token").then((token){
+        setState(() {
+          this.token =  token;
+        });
+      });
+
+  }
+
 }
 
-class Champions {
-  final int id;
-  final String freeChampionIds;
 
-  Champions(this.id, this.freeChampionIds);
-}

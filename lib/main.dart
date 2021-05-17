@@ -166,21 +166,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Future<String> authenticate(String username, String password) async {
-    var response = await http.post(
-        Uri.http("10.0.2.2:8000", "/api/account/login"),
-        body: {"username": username, "password": password});
-    if (response.statusCode == 200) {
-      var jsonData = jsonDecode(response.body);
-      final String token = jsonData["token"];
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setString("token", token);
-      return token;
-    } else {
-      return null;
-    }
-  }
-
   bool validateAndSave() {
     final form = _formKey.currentState;
 
