@@ -9,7 +9,6 @@ import 'package:logindemo/utils/shared_preferences.dart';
 
 class DoorListings extends StatefulWidget {
   final String text;
-
   @override
   _DoorListingState createState() => _DoorListingState();
 
@@ -26,9 +25,11 @@ class MyApp extends StatelessWidget {
 }
 
 class _DoorListingState extends State<DoorListings> {
+  bool isLoaded = false;
   String token = "";
   String ip = "10.0.2.2:8000";
   bool isApiCallProcess = false;
+  List<DoorModel> doors;
 
   @override
   void initState() {
@@ -88,12 +89,12 @@ class _DoorListingState extends State<DoorListings> {
                   );
                 }
 
-                final items = snapshot.data;
+                this.doors = snapshot.data;
                 return ListView.builder(
-                    itemCount: items.length,
+                    itemCount: doors.length,
                     itemBuilder: (context, i) {
                       return ListTile(
-                        title: Text(items[i].toString()),
+                        title: Text(doors[i].toString()),
                         trailing: Column(
                           children: <Widget>[
                             Expanded(
@@ -104,7 +105,7 @@ class _DoorListingState extends State<DoorListings> {
                                 //color: Colors.green,
                                 child: Text('Open Door'),
                                 onPressed: () =>
-                                    {_showConfirmation(apiService, items[i])},
+                                    {_showConfirmation(apiService, doors[i])},
                               ),
                             )
                           ],
@@ -142,6 +143,7 @@ class _DoorListingState extends State<DoorListings> {
                 apiService.openDoor(getDoorId(door), this.token);
 
                 Navigator.of(context).pop();
+
                 setState(() {
                   // Display a message to the user that the door was opened
                   final snackBar =
@@ -173,7 +175,10 @@ class _DoorListingState extends State<DoorListings> {
   }
 
   Future<dynamic> getDoors(APIService apiService) async {
+    if (isLoaded) return this.doors;
+
     this.token = await SharedPreferencesUtils.getSharedPreferences("token");
+    this.isLoaded = true;
     return apiService.getDoors(this.token);
   }
 }
