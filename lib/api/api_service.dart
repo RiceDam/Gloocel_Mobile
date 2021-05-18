@@ -4,7 +4,6 @@ import 'package:http/http.dart' as http;
 import 'package:logindemo/model/door_model.dart';
 import 'package:logindemo/model/login_model.dart';
 
-
 class APIService {
   final String ipAddress = "10.0.2.2:8000";
   Future<LoginResponseModel> login(LoginRequestModel requestModel) async {
@@ -26,37 +25,39 @@ class APIService {
 
     throw Exception("Failed to load data");
   }
-  Future openDoor(String doorName,String token) async {
-    Uri url = Uri.http(ipAddress, "/api/door/open/" + doorName);
-    try{
-      var response = await http.post(url, headers: {"Authorization": "token " + token});
-    }catch (SocketException){
 
-    }
-
+  Future openDoor(String doorNumber, String token) async {
+    Uri url = Uri.http(ipAddress, "/api/door/open/" + doorNumber);
+    try {
+      var response =
+          await http.post(url, headers: {"Authorization": "token " + token});
+    } catch (SocketException) {}
   }
-  Future getDoors(String token) async {
-    Uri url = Uri.http(ipAddress, "/api/door");
-    try{
-      var response = await http.get(url, headers: {"Authorization": "token " + token});
-      var jsonData = await jsonDecode(response.body);
 
-      List<DoorModel> doors = [];
-      for (int i = 0; i < jsonData.length; i++) {
-        DoorModel door =
-        DoorModel(jsonData[i]['id'], jsonData[i]["door_name"].toString());
-        doors.add(door);
+  Future<List<dynamic>> getDoors(String token) async {
+    Uri url = Uri.http(ipAddress, "/api/door/");
+    try {
+      var response =
+          await http.get(url, headers: {"Authorization": "token " + token});
+
+      if (response.statusCode == 401) {
+        return [];
       }
-      return doors;
-    } catch (socketException){
 
+      if (response.statusCode == 200 || response.statusCode == 400) {
+        return DoorModel.fromJson(json.decode(response.body));
+      }
+    } catch (Exception) {
+      return [];
     }
 
+    return [];
   }
-  Future<int> logout(String token) async{
+
+  Future<int> logout(String token) async {
     Uri url = Uri.http(ipAddress, "/api/account/logout");
-    var response = await http.get(url, headers: {"authorization": "Token " + token});
+    var response =
+        await http.get(url, headers: {"authorization": "Token " + token});
     return response.statusCode;
   }
 }
-
