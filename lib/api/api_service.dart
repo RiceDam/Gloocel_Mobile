@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:logindemo/model/door_model.dart';
@@ -12,18 +13,25 @@ class APIService {
     try {
       var response = await http.post(url, body: requestModel.toJson());
 
-      if (response.statusCode == 200 || response.statusCode == 400) {
+      if (response.statusCode == 200 ||
+          response.statusCode == 401 ||
+          response.statusCode == 404) {
         return LoginResponseModel.fromJson(json.decode(response.body));
       }
-    } catch (SocketException) {
+      throw Exception("Failed to load data");
+    } on SocketException catch (exception) {
       // The design of the backend Django authentication allows for multiple errors
       // So we should return an array of error messages, rather than just a single String
       return LoginResponseModel.fromJson({
-        'non_field_errors': ['Unable to reach Gloocel Hub Servers']
+        'non_field_errors': ['Unable to reach Gloocel Hub Servers'],
+        'exception': exception.toString()
+      });
+    } catch (Exception) {
+      return LoginResponseModel.fromJson({
+        'non_field_errors': ['Unable to log in with provided credentials'],
+        'exception': Exception.toString()
       });
     }
-
-    throw Exception("Failed to load data");
   }
 
   Future openDoor(String doorNumber, String token) async {
