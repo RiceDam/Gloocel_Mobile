@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:logindemo/components/progress_hud.dart';
 import 'package:logindemo/model/door_model.dart';
 import '../main.dart';
 import '../api/api_service.dart';
@@ -8,7 +11,7 @@ class DoorListings extends StatefulWidget {
   final String text;
 
   @override
-  _DataFromAPIState createState() => _DataFromAPIState();
+  _DoorListingState createState() => _DoorListingState();
 
   DoorListings({Key key, @required this.text}) : super(key: key);
 }
@@ -22,9 +25,10 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class _DataFromAPIState extends State<DoorListings> {
+class _DoorListingState extends State<DoorListings> {
   String token = "";
   String ip = "10.0.2.2:8000";
+  bool isApiCallProcess = false;
 
   @override
   void initState() {
@@ -33,6 +37,11 @@ class _DataFromAPIState extends State<DoorListings> {
 
   @override
   Widget build(BuildContext context) {
+    return ProgressHUD(
+        child: _uiSetup(context), isAsyncCall: isApiCallProcess, opacity: 0.3);
+  }
+
+  Widget _uiSetup(BuildContext context) {
     APIService apiService = new APIService();
 
     return Scaffold(
@@ -88,13 +97,14 @@ class _DataFromAPIState extends State<DoorListings> {
                         trailing: Column(
                           children: <Widget>[
                             Expanded(
-                              child: FlatButton(
-                                color: Colors.green,
+                              child: TextButton(
+                                style: TextButton.styleFrom(
+                                    primary: Colors.white,
+                                    backgroundColor: Colors.green),
+                                //color: Colors.green,
                                 child: Text('Open Door'),
-                                onPressed: () => {
-                                  apiService.openDoor(
-                                      getDoorId(items[i]), token)
-                                },
+                                onPressed: () =>
+                                    {_showConfirmation(apiService, items[i])},
                               ),
                             )
                           ],
@@ -109,6 +119,57 @@ class _DataFromAPIState extends State<DoorListings> {
 
   String getDoorId(DoorModel door) {
     return door.getId().toString();
+  }
+
+  Future<void> _showConfirmation(APIService apiService, DoorModel door) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Are you sure?'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Would you like to open this door?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Yes'),
+              onPressed: () {
+                apiService.openDoor(getDoorId(door), this.token);
+
+                Navigator.of(context).pop();
+                setState(() {
+                  // Display a message to the user that the door was opened
+                  final snackBar =
+                      SnackBar(content: Text("Door was successfully opened!"));
+                  ScaffoldMessenger.of(this.context).showSnackBar(snackBar);
+
+                  // Create a loading modal so the user cannot mass send messages
+                  this.isApiCallProcess = true;
+
+                  // Create a future so that the state can be updated
+                  Future.delayed(const Duration(milliseconds: 3000), () {
+                    setState(() {
+                      this.isApiCallProcess = !this.isApiCallProcess;
+                    });
+                  });
+                });
+              },
+            ),
+            TextButton(
+              child: Text('No'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            )
+          ],
+        );
+      },
+    );
   }
 
   Future<dynamic> getDoors(APIService apiService) async {
