@@ -8,12 +8,10 @@ import '../api/api_service.dart';
 import 'package:logindemo/utils/shared_preferences.dart';
 
 class DoorListings extends StatefulWidget {
-  final String text;
-
   @override
   _DoorListingState createState() => _DoorListingState();
 
-  DoorListings({Key key, @required this.text}) : super(key: key);
+  DoorListings({Key key}) : super(key: key);
 }
 
 class MyApp extends StatelessWidget {
@@ -26,9 +24,11 @@ class MyApp extends StatelessWidget {
 }
 
 class _DoorListingState extends State<DoorListings> {
+  bool isLoaded = false;
   String token = "";
   String ip = "10.0.2.2:8000";
   bool isApiCallProcess = false;
+  List<dynamic> doors;
 
   @override
   void initState() {
@@ -51,17 +51,11 @@ class _DoorListingState extends State<DoorListings> {
             PopupMenuButton<String>(
               onSelected: (value) async {
                 apiService.logout(token).then((statusCode) {
-                  if (statusCode == 200) {
-                    SharedPreferencesUtils.updateSharedPreferences("token", "");
-                    setState(() {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => LoginPage()),
-                      );
-                    });
-                  } else {
-                    print("session expires");
-                  }
+                  SharedPreferencesUtils.updateSharedPreferences("token", "");
+                  setState(() {
+                    Navigator.of(context).pushReplacement(MaterialPageRoute(
+                        builder: (BuildContext context) => LoginPage()));
+                  });
                 });
               },
               itemBuilder: (BuildContext context) {
@@ -88,29 +82,43 @@ class _DoorListingState extends State<DoorListings> {
                   );
                 }
 
-                final items = snapshot.data;
-                return ListView.builder(
-                    itemCount: items.length,
-                    itemBuilder: (context, i) {
-                      return ListTile(
-                        title: Text(items[i].toString()),
-                        trailing: Column(
-                          children: <Widget>[
-                            Expanded(
-                              child: TextButton(
-                                style: TextButton.styleFrom(
-                                    primary: Colors.white,
-                                    backgroundColor: Colors.green),
-                                //color: Colors.green,
-                                child: Text('Open Door'),
-                                onPressed: () =>
-                                    {_showConfirmation(apiService, items[i])},
-                              ),
-                            )
-                          ],
-                        ),
-                      );
-                    });
+                this.doors = snapshot.data;
+
+                if (this.doors.length == 0) {
+                  return Container(
+                    child: Center(
+                      child: Text('No doors available...'),
+                    ),
+                  );
+                }
+
+                return ListView.separated(
+                  itemBuilder: (context, i) {
+                    return ListTile(
+                      title: Text(this.doors[i].toString()),
+                      trailing: Column(
+                        children: <Widget>[
+                          Expanded(
+                            child: TextButton(
+                              style: TextButton.styleFrom(
+                                  primary: Colors.white,
+                                  backgroundColor: Colors.green),
+                              //color: Colors.green,
+                              child: Text('Open Door'),
+                              onPressed: () => {
+                                _showConfirmation(apiService, this.doors[i])
+                              },
+                            ),
+                          )
+                        ],
+                      ),
+                    );
+                  },
+                  padding: EdgeInsets.only(top: 25.75),
+                  separatorBuilder: (BuildContext context, int index) =>
+                      const Divider(height: 25.75, color: Colors.transparent),
+                  itemCount: this.doors.length,
+                );
               },
             ),
           ),
@@ -142,6 +150,7 @@ class _DoorListingState extends State<DoorListings> {
                 apiService.openDoor(getDoorId(door), this.token);
 
                 Navigator.of(context).pop();
+
                 setState(() {
                   // Display a message to the user that the door was opened
                   final snackBar =
@@ -173,7 +182,10 @@ class _DoorListingState extends State<DoorListings> {
   }
 
   Future<dynamic> getDoors(APIService apiService) async {
+    if (isLoaded) return this.doors;
+
     this.token = await SharedPreferencesUtils.getSharedPreferences("token");
+    this.isLoaded = true;
     return apiService.getDoors(this.token);
   }
 }

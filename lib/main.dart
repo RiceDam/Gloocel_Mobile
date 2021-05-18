@@ -126,11 +126,10 @@ class _LoginPageState extends State<LoginPage> {
                         if (value.token.isNotEmpty) {
                           SharedPreferencesUtils.updateSharedPreferences(
                               "token", value.token);
-                          Navigator.push(
-                              context,
+                          Navigator.of(context).pushReplacement(
                               MaterialPageRoute(
-                                  builder: (_) =>
-                                      DoorListings(text: value.token)));
+                                  builder: (BuildContext context) =>
+                                      DoorListings()));
                         } else {
                           final snackBar = SnackBar(content: Text(value.error));
                           ScaffoldMessenger.of(context).showSnackBar(snackBar);
