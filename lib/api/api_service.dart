@@ -26,8 +26,8 @@ class APIService {
     throw Exception("Failed to load data");
   }
 
-  Future openDoor(String doorName, String token) async {
-    Uri url = Uri.http(ipAddress, "/api/door/open/" + doorName);
+  Future openDoor(String doorNumber, String token) async {
+    Uri url = Uri.http(ipAddress, "/api/door/open/" + doorNumber);
     try {
       var response =
           await http.post(url, headers: {"Authorization": "token " + token});
@@ -40,19 +40,18 @@ class APIService {
       var response =
           await http.get(url, headers: {"Authorization": "token " + token});
 
+      if (response.statusCode == 401) {
+        return [];
+      }
+
       if (response.statusCode == 200 || response.statusCode == 400) {
         return DoorModel.fromJson(json.decode(response.body));
       }
-
-      if (response.statusCode == 401) {
-        print(response.statusCode);
-        print("hello world");
-        print(token);
-        return [];
-      }
-    } catch (socketException) {
+    } catch (Exception) {
       return [];
     }
+
+    return [];
   }
 
   Future<int> logout(String token) async {

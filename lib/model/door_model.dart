@@ -1,8 +1,8 @@
 class DoorModel {
   final int id;
-  final String doorIds;
+  final String doorName;
 
-  DoorModel(this.id, this.doorIds);
+  DoorModel(this.id, this.doorName);
 
   int getId() {
     return this.id;
@@ -16,5 +16,10 @@ class DoorModel {
       doors.add(door);
     }
     return doors;
+  }
+
+  @override
+  String toString() {
+    return doorName;
   }
 }
