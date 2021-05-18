@@ -129,7 +129,7 @@ class _LoginPageState extends State<LoginPage> {
                           Navigator.of(context).pushReplacement(
                               MaterialPageRoute(
                                   builder: (BuildContext context) =>
-                                      DoorListings(text: value.token)));
+                                      DoorListings()));
                         } else {
                           final snackBar = SnackBar(content: Text(value.error));
                           ScaffoldMessenger.of(context).showSnackBar(snackBar);

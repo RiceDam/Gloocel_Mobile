@@ -8,11 +8,10 @@ import '../api/api_service.dart';
 import 'package:logindemo/utils/shared_preferences.dart';
 
 class DoorListings extends StatefulWidget {
-  final String text;
   @override
   _DoorListingState createState() => _DoorListingState();
 
-  DoorListings({Key key, @required this.text}) : super(key: key);
+  DoorListings({Key key}) : super(key: key);
 }
 
 class MyApp extends StatelessWidget {
@@ -93,29 +92,33 @@ class _DoorListingState extends State<DoorListings> {
                   );
                 }
 
-                return ListView.builder(
-                    itemCount: this.doors.length,
-                    itemBuilder: (context, i) {
-                      return ListTile(
-                        title: Text(this.doors[i].toString()),
-                        trailing: Column(
-                          children: <Widget>[
-                            Expanded(
-                              child: TextButton(
-                                style: TextButton.styleFrom(
-                                    primary: Colors.white,
-                                    backgroundColor: Colors.green),
-                                //color: Colors.green,
-                                child: Text('Open Door'),
-                                onPressed: () => {
-                                  _showConfirmation(apiService, this.doors[i])
-                                },
-                              ),
-                            )
-                          ],
-                        ),
-                      );
-                    });
+                return ListView.separated(
+                  itemBuilder: (context, i) {
+                    return ListTile(
+                      title: Text(this.doors[i].toString()),
+                      trailing: Column(
+                        children: <Widget>[
+                          Expanded(
+                            child: TextButton(
+                              style: TextButton.styleFrom(
+                                  primary: Colors.white,
+                                  backgroundColor: Colors.green),
+                              //color: Colors.green,
+                              child: Text('Open Door'),
+                              onPressed: () => {
+                                _showConfirmation(apiService, this.doors[i])
+                              },
+                            ),
+                          )
+                        ],
+                      ),
+                    );
+                  },
+                  padding: EdgeInsets.only(top: 25.75),
+                  separatorBuilder: (BuildContext context, int index) =>
+                      const Divider(height: 25.75, color: Colors.transparent),
+                  itemCount: this.doors.length,
+                );
               },
             ),
           ),
