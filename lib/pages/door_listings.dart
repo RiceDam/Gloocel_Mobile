@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logindemo/model/door_model.dart';
 import '../main.dart';
 import '../api/api_service.dart';
 import 'package:logindemo/utils/shared_preferences.dart';
@@ -24,10 +25,10 @@ class MyApp extends StatelessWidget {
 class _DataFromAPIState extends State<DoorListings> {
   String token = "";
   String ip = "10.0.2.2:8000";
+
   @override
   void initState() {
     super.initState();
-    getToken();
   }
 
   @override
@@ -68,51 +69,50 @@ class _DataFromAPIState extends State<DoorListings> {
         body: Container(
           child: Card(
             child: FutureBuilder(
-              future: apiService.getDoors(token),
+              future: getDoors(apiService),
               builder: (context, snapshot) {
-                if (snapshot.data == null) {
+                if (!snapshot.hasData) {
                   return Container(
                     child: Center(
                       child: Text('Loading...'),
                     ),
                   );
-                } else
-                  return ListView.builder(
-                      itemCount: snapshot.data.length,
-                      itemBuilder: (context, i) {
-                        return ListTile(
-                          title: Text(getDoorId(snapshot, i)),
-                          trailing: Column(
-                            children: <Widget>[
-                              Expanded(
-                                child: FlatButton(
-                                  color: Colors.green,
-                                  child: Text('Open Door'),
-                                  onPressed: () => {
-                                    apiService.openDoor(
-                                        getDoorId(snapshot, i), token)
-                                  },
-                                ),
-                              )
-                            ],
-                          ),
-                        );
-                      });
+                }
+
+                final items = snapshot.data;
+                return ListView.builder(
+                    itemCount: items.length,
+                    itemBuilder: (context, i) {
+                      return ListTile(
+                        title: Text(items[i].toString()),
+                        trailing: Column(
+                          children: <Widget>[
+                            Expanded(
+                              child: FlatButton(
+                                color: Colors.green,
+                                child: Text('Open Door'),
+                                onPressed: () => {
+                                  apiService.openDoor(
+                                      getDoorId(items[i]), token)
+                                },
+                              ),
+                            )
+                          ],
+                        ),
+                      );
+                    });
               },
             ),
           ),
         ));
   }
 
-  String getDoorId(snapshot, int i) {
-    return snapshot.data[i].id.toString();
+  String getDoorId(DoorModel door) {
+    return door.getId().toString();
   }
 
-  getToken() {
-    SharedPreferencesUtils.getSharedPreferences("token").then((token) {
-      setState(() {
-        this.token = token;
-      });
-    });
+  Future<dynamic> getDoors(APIService apiService) async {
+    this.token = await SharedPreferencesUtils.getSharedPreferences("token");
+    return apiService.getDoors(this.token);
   }
 }
