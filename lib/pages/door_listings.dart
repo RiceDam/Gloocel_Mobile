@@ -29,7 +29,7 @@ class _DoorListingState extends State<DoorListings> {
   String token = "";
   String ip = "10.0.2.2:8000";
   bool isApiCallProcess = false;
-  List<DoorModel> doors;
+  List<dynamic> doors;
 
   @override
   void initState() {
@@ -52,17 +52,11 @@ class _DoorListingState extends State<DoorListings> {
             PopupMenuButton<String>(
               onSelected: (value) async {
                 apiService.logout(token).then((statusCode) {
-                  if (statusCode == 200) {
-                    SharedPreferencesUtils.updateSharedPreferences("token", "");
-                    setState(() {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => LoginPage()),
-                      );
-                    });
-                  } else {
-                    print("session expires");
-                  }
+                  SharedPreferencesUtils.updateSharedPreferences("token", "");
+                  setState(() {
+                    Navigator.of(context).pushReplacement(MaterialPageRoute(
+                        builder: (BuildContext context) => LoginPage()));
+                  });
                 });
               },
               itemBuilder: (BuildContext context) {
@@ -90,11 +84,20 @@ class _DoorListingState extends State<DoorListings> {
                 }
 
                 this.doors = snapshot.data;
+
+                if (this.doors.length == 0) {
+                  return Container(
+                    child: Center(
+                      child: Text('No doors available...'),
+                    ),
+                  );
+                }
+
                 return ListView.builder(
-                    itemCount: doors.length,
+                    itemCount: this.doors.length,
                     itemBuilder: (context, i) {
                       return ListTile(
-                        title: Text(doors[i].toString()),
+                        title: Text(this.doors[i].toString()),
                         trailing: Column(
                           children: <Widget>[
                             Expanded(
@@ -104,8 +107,9 @@ class _DoorListingState extends State<DoorListings> {
                                     backgroundColor: Colors.green),
                                 //color: Colors.green,
                                 child: Text('Open Door'),
-                                onPressed: () =>
-                                    {_showConfirmation(apiService, doors[i])},
+                                onPressed: () => {
+                                  _showConfirmation(apiService, this.doors[i])
+                                },
                               ),
                             )
                           ],
