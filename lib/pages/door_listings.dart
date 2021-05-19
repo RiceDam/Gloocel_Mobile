@@ -91,42 +91,22 @@ class _DoorListingState extends State<DoorListings> {
                     ),
                   );
                 }
-                if(this.doors.length > 100){
-                  return ListView.separated(
-                    itemBuilder: (context, i) {
-                      return ListTile(
-                        title: Text(this.doors[i].toString()),
-                        trailing: Column(
-                          children: <Widget>[
-                            Expanded(
-                              child: TextButton(
-                                style: TextButton.styleFrom(
-                                    primary: Colors.white,
-                                    backgroundColor: Colors.green),
-                                //color: Colors.green,
-                                child: Text('Open Door'),
-                                onPressed: () => {
-                                  _showConfirmation(apiService, this.doors[i])
-                                },
-                              ),
-                            )
-                          ],
-                        ),
-                      );
-                    },
-                    padding: EdgeInsets.only(top: 25.75),
-                    separatorBuilder: (BuildContext context, int index) =>
-                    const Divider(height: 25.75, color: Colors.transparent),
-                    itemCount: this.doors.length,
-                  );
-                }
+
                 return GroupedListView<dynamic, String>(
                   elements: doors,
-                  groupBy: (element) => element.getLocationName(),
-                  groupSeparatorBuilder: (groupByValue) => Padding(padding:EdgeInsets.only(top: 8),child:Text('${groupByValue}'),),
+                  groupBy: (element) => element.getLocationName(),//Padding(padding:EdgeInsets.all(25.75),child:Text('${groupByValue}')),
+                  groupSeparatorBuilder: (groupByValue) => new Container(
+                    color: Color.fromRGBO(220,220,220, 100),
+                    padding: EdgeInsets.all(25.75),
+                    child: Text('$groupByValue',
+                    textAlign: TextAlign.center,),
+                  ),
+                  separator: const Divider(height: 25.75, color: Colors.transparent,),
                   indexedItemBuilder: (context, element, i) {
                     return ListTile(
-                      title: Text(element.getDoorName()),
+                      title: Text(
+                          element.getDoorName()
+                      ),
                       trailing: Column(
                         children: <Widget>[
                           Expanded(
@@ -146,7 +126,7 @@ class _DoorListingState extends State<DoorListings> {
                     );
                   },
                   itemComparator: (item1, item2) => item1.getLocationName().compareTo(item2.getLocationName()), // optional
-                  useStickyGroupSeparators: true, // optional
+                  useStickyGroupSeparators: false, // optional
                   floatingHeader: false, // optional
                   order: GroupedListOrder.ASC, // optional
 
