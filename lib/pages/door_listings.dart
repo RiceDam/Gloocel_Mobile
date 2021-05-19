@@ -75,6 +75,13 @@ class _DoorListingState extends State<DoorListings> {
             child: FutureBuilder(
               future: getDoors(apiService),
               builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return Container(
+                    child: Center(
+                      child: Text('Loading...'),
+                    ),
+                  );
+                }
                 this.doors = snapshot.data;
                 if (this.doors.length == 0) {
                   return Container(
