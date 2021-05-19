@@ -27,7 +27,6 @@ class MyApp extends StatelessWidget {
 class _DoorListingState extends State<DoorListings> {
   bool isLoaded = false;
   String token = "";
-  String ip = "10.0.2.2:8000";
   bool isApiCallProcess = false;
   List<dynamic> doors;
 

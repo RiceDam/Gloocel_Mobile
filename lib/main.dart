@@ -3,10 +3,15 @@ import 'package:logindemo/api/api_service.dart';
 import 'package:logindemo/components/progress_hud.dart';
 import 'package:logindemo/pages/door_listings.dart';
 import 'package:logindemo/utils/shared_preferences.dart';
+import 'package:flutter_config/flutter_config.dart';
 
 import 'model/login_model.dart';
 
-void main() => runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // Required by FlutterConfig
+  await FlutterConfig.loadEnvVariables();
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
