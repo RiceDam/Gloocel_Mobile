@@ -47,7 +47,6 @@ class _DoorListingState extends State<DoorListings> {
 
     return Scaffold(
         appBar: AppBar(
-          title: Text("Open Door"),
           actions: <Widget>[
             PopupMenuButton<String>(
               onSelected: (value) async {
@@ -93,19 +92,23 @@ class _DoorListingState extends State<DoorListings> {
 
                 return GroupedListView<dynamic, String>(
                   elements: doors,
-                  groupBy: (element) => element.getLocationName(),//Padding(padding:EdgeInsets.all(25.75),child:Text('${groupByValue}')),
+                  groupBy: (element) => element
+                      .getLocationName(), //Padding(padding:EdgeInsets.all(25.75),child:Text('${groupByValue}')),
                   groupSeparatorBuilder: (groupByValue) => new Container(
-                    color: Color.fromRGBO(220,220,220, 100),
+                    color: Color.fromRGBO(220, 220, 220, 100),
                     padding: EdgeInsets.all(25.75),
-                    child: Text('$groupByValue',
-                    textAlign: TextAlign.center,),
+                    child: Text(
+                      '$groupByValue',
+                      textAlign: TextAlign.center,
+                    ),
                   ),
-                  separator: const Divider(height: 25.75, color: Colors.transparent,),
+                  separator: const Divider(
+                    height: 25.75,
+                    color: Colors.transparent,
+                  ),
                   indexedItemBuilder: (context, element, i) {
                     return ListTile(
-                      title: Text(
-                          element.getDoorName()
-                      ),
+                      title: Text(element.getDoorName()),
                       trailing: Column(
                         children: <Widget>[
                           Expanded(
@@ -124,11 +127,12 @@ class _DoorListingState extends State<DoorListings> {
                       ),
                     );
                   },
-                  itemComparator: (item1, item2) => item1.getLocationName().compareTo(item2.getLocationName()), // optional
+                  itemComparator: (item1, item2) => item1
+                      .getLocationName()
+                      .compareTo(item2.getLocationName()), // optional
                   useStickyGroupSeparators: false, // optional
                   floatingHeader: false, // optional
                   order: GroupedListOrder.ASC, // optional
-
                 );
               },
             ),
