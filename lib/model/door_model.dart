@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class DoorModel {
   final int id;
   final String doorName;
@@ -21,5 +23,17 @@ class DoorModel {
   @override
   String toString() {
     return doorName;
+  }
+}
+
+class OpenDoorResponse {
+  final int statusCode;
+  final Map<String, dynamic> responseData;
+
+  OpenDoorResponse(this.statusCode, this.responseData);
+
+  static OpenDoorResponse fromJson(int statusCode, String body) {
+    dynamic responseData = (jsonDecode(body));
+    return new OpenDoorResponse(statusCode, responseData);
   }
 }

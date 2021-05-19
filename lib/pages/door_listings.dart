@@ -146,15 +146,18 @@ class _DoorListingState extends State<DoorListings> {
           actions: <Widget>[
             TextButton(
               child: Text('Yes'),
-              onPressed: () {
-                apiService.openDoor(getDoorId(door), this.token);
-
+              onPressed: () async {
                 Navigator.of(context).pop();
+
+                OpenDoorResponse res =
+                    await apiService.openDoor(getDoorId(door), this.token);
 
                 setState(() {
                   // Display a message to the user that the door was opened
-                  final snackBar =
-                      SnackBar(content: Text("Door was successfully opened!"));
+                  final snackBar = SnackBar(
+                      content: res.responseData.containsKey('success')
+                          ? Text("Door was successfully opened!")
+                          : Text("Unable to open the door at this time!"));
                   ScaffoldMessenger.of(this.context).showSnackBar(snackBar);
 
                   // Create a loading modal so the user cannot mass send messages
