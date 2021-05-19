@@ -6,6 +6,7 @@ import 'package:logindemo/model/door_model.dart';
 import '../main.dart';
 import '../api/api_service.dart';
 import 'package:logindemo/utils/shared_preferences.dart';
+import 'package:grouped_list/grouped_list.dart';
 
 class DoorListings extends StatefulWidget {
   @override
@@ -83,7 +84,6 @@ class _DoorListingState extends State<DoorListings> {
                 }
 
                 this.doors = snapshot.data;
-
                 if (this.doors.length == 0) {
                   return Container(
                     child: Center(
@@ -91,11 +91,42 @@ class _DoorListingState extends State<DoorListings> {
                     ),
                   );
                 }
-
-                return ListView.separated(
-                  itemBuilder: (context, i) {
+                if(this.doors.length > 100){
+                  return ListView.separated(
+                    itemBuilder: (context, i) {
+                      return ListTile(
+                        title: Text(this.doors[i].toString()),
+                        trailing: Column(
+                          children: <Widget>[
+                            Expanded(
+                              child: TextButton(
+                                style: TextButton.styleFrom(
+                                    primary: Colors.white,
+                                    backgroundColor: Colors.green),
+                                //color: Colors.green,
+                                child: Text('Open Door'),
+                                onPressed: () => {
+                                  _showConfirmation(apiService, this.doors[i])
+                                },
+                              ),
+                            )
+                          ],
+                        ),
+                      );
+                    },
+                    padding: EdgeInsets.only(top: 25.75),
+                    separatorBuilder: (BuildContext context, int index) =>
+                    const Divider(height: 25.75, color: Colors.transparent),
+                    itemCount: this.doors.length,
+                  );
+                }
+                return GroupedListView<dynamic, String>(
+                  elements: doors,
+                  groupBy: (element) => element.getLocationName(),
+                  groupSeparatorBuilder: (groupByValue) => Padding(padding:EdgeInsets.only(top: 8),child:Text('${groupByValue}'),),
+                  indexedItemBuilder: (context, element, i) {
                     return ListTile(
-                      title: Text(this.doors[i].toString()),
+                      title: Text(element.getDoorName()),
                       trailing: Column(
                         children: <Widget>[
                           Expanded(
@@ -106,7 +137,7 @@ class _DoorListingState extends State<DoorListings> {
                               //color: Colors.green,
                               child: Text('Open Door'),
                               onPressed: () => {
-                                _showConfirmation(apiService, this.doors[i])
+                                _showConfirmation(apiService, doors[i]),
                               },
                             ),
                           )
@@ -114,10 +145,11 @@ class _DoorListingState extends State<DoorListings> {
                       ),
                     );
                   },
-                  padding: EdgeInsets.only(top: 25.75),
-                  separatorBuilder: (BuildContext context, int index) =>
-                      const Divider(height: 25.75, color: Colors.transparent),
-                  itemCount: this.doors.length,
+                  itemComparator: (item1, item2) => item1.getLocationName().compareTo(item2.getLocationName()), // optional
+                  useStickyGroupSeparators: true, // optional
+                  floatingHeader: false, // optional
+                  order: GroupedListOrder.ASC, // optional
+
                 );
               },
             ),
