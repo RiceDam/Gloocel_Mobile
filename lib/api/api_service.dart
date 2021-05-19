@@ -39,7 +39,12 @@ class APIService {
     try {
       var response =
           await http.post(url, headers: {"Authorization": "token " + token});
-    } catch (SocketException) {}
+
+      return OpenDoorResponse.fromJson(response.statusCode, response.body);
+    } catch (Exception) {
+      var obj = {"error": "Unable to connect to Gloocel Hub Servers"};
+      return OpenDoorResponse.fromJson(500, jsonEncode(obj));
+    }
   }
 
   Future<List<dynamic>> getDoors(String token) async {
