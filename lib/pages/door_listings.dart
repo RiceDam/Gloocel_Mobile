@@ -108,6 +108,7 @@ class _DoorListingState extends State<DoorListings> {
                   ),
                   indexedItemBuilder: (context, element, i) {
                     return ListTile(
+                      contentPadding: EdgeInsets.all(15.50),
                       title: Text(element.getDoorName()),
                       trailing: Column(
                         children: <Widget>[
