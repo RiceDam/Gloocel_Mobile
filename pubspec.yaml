@@ -32,9 +32,12 @@ dependencies:
   cupertino_icons: ^0.1.3
 
 dev_dependencies:
+  flutter_config: ^2.0.0
   flutter_test:
     sdk: flutter
 
+flutter_launcher_name:
+  name: "Gloocel"
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 

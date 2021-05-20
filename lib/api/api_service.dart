@@ -4,9 +4,10 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:logindemo/model/door_model.dart';
 import 'package:logindemo/model/login_model.dart';
+import 'package:flutter_config/flutter_config.dart';
 
 class APIService {
-  final String ipAddress = "10.0.2.2:8000";
+  final String ipAddress = FlutterConfig.get('GLOOCEL_HUB_API_URL_DEV');
   Future<LoginResponseModel> login(LoginRequestModel requestModel) async {
     Uri url = Uri.http(ipAddress, "/api/account/login");
 
