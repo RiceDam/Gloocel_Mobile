@@ -24,18 +24,12 @@ class APIService {
       // The design of the backend Django authentication allows for multiple errors
       // So we should return an array of error messages, rather than just a single String
       return LoginResponseModel.fromJson({
-        'non_field_errors': [
-          'Unable to reach Gloocel Hub Servers' + ' ' + exception.toString()
-        ],
+        'non_field_errors': ['Unable to reach Gloocel Hub Servers'],
         'exception': exception.toString()
       });
     } catch (Exception) {
       return LoginResponseModel.fromJson({
-        'non_field_errors': [
-          'Unable to log in with provided credentials' +
-              ' ' +
-              Exception.toString()
-        ],
+        'non_field_errors': ['Unable to log in with provided credentials'],
         'exception': Exception.toString()
       });
     }
