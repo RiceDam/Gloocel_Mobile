@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
-import 'package:logindemo/model/door_model.dart';
-import 'package:logindemo/model/login_model.dart';
+import 'package:gloocel/model/door_model.dart';
+import 'package:gloocel/model/login_model.dart';
 import 'package:flutter_config/flutter_config.dart';
 
 class APIService {
@@ -24,12 +24,18 @@ class APIService {
       // The design of the backend Django authentication allows for multiple errors
       // So we should return an array of error messages, rather than just a single String
       return LoginResponseModel.fromJson({
-        'non_field_errors': ['Unable to reach Gloocel Hub Servers'],
+        'non_field_errors': [
+          'Unable to reach Gloocel Hub Servers' + ' ' + exception.toString()
+        ],
         'exception': exception.toString()
       });
     } catch (Exception) {
       return LoginResponseModel.fromJson({
-        'non_field_errors': ['Unable to log in with provided credentials'],
+        'non_field_errors': [
+          'Unable to log in with provided credentials' +
+              ' ' +
+              Exception.toString()
+        ],
         'exception': Exception.toString()
       });
     }
