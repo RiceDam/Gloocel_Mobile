@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
-import 'package:logindemo/model/door_model.dart';
-import 'package:logindemo/model/login_model.dart';
+import 'package:gloocel/model/door_model.dart';
+import 'package:gloocel/model/login_model.dart';
 import 'package:flutter_config/flutter_config.dart';
 
 class APIService {

@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:logindemo/components/progress_hud.dart';
-import 'package:logindemo/model/door_model.dart';
+import 'package:gloocel/components/progress_hud.dart';
+import 'package:gloocel/model/door_model.dart';
 import '../main.dart';
 import '../api/api_service.dart';
-import 'package:logindemo/utils/shared_preferences.dart';
+import 'package:gloocel/utils/shared_preferences.dart';
 import 'package:grouped_list/grouped_list.dart';
 
 class DoorListings extends StatefulWidget {
