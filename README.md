@@ -14,7 +14,3 @@ Glocel Cloud Hub Client Flutter application.
 <br>
 /utils - Re-usable utility functions used throughout the application
 <br>
-
-
-## Link to Django Server code
-https://github.com/RoyArka/Django_gloocel
